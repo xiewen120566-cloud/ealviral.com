@@ -11,6 +11,7 @@ import {
 } from "@chakra-ui/react";
 import { getTranslations } from "next-intl/server";
 
+export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 export default async function TagsPage({
@@ -52,4 +53,3 @@ export default async function TagsPage({
     </Container>
   );
 }
-

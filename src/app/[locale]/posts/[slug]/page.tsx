@@ -15,6 +15,7 @@ import {
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 
+export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 const AdsenseSlot = dynamicImport(() => import("@/components/adsense-slot"), {

@@ -8,6 +8,7 @@ import { getMessages, setRequestLocale } from "next-intl/server";
 import { Box } from "@chakra-ui/react";
 import Script from "next/script";
 
+export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 export default async function LocaleLayout({

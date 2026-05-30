@@ -13,6 +13,7 @@ import {
 } from "@chakra-ui/react";
 import { notFound } from "next/navigation";
 
+export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 export default async function TagDetailPage({
@@ -138,4 +139,3 @@ export default async function TagDetailPage({
     </Container>
   );
 }
-

@@ -15,6 +15,7 @@ import {
 } from "@chakra-ui/react";
 import { getTranslations } from "next-intl/server";
 
+export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 export default async function SearchPage({
@@ -108,4 +109,3 @@ export default async function SearchPage({
     </Container>
   );
 }
-

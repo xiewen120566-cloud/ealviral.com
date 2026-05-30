@@ -17,6 +17,7 @@ import {
 } from "@chakra-ui/react";
 import { notFound } from "next/navigation";
 
+export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 export default async function CategoryPage({
@@ -133,4 +134,3 @@ export default async function CategoryPage({
     </Container>
   );
 }
-
