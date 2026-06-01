@@ -58,16 +58,18 @@ export default async function Page({
           />
         </Box>
         <Box
-          columnCount={{ base: 2, sm: 3, md: 4, lg: 5 }}
-          columnGap={{ base: 3, md: 4, lg: 6 }}
+          sx={{
+            columnCount: { base: 2, sm: 3, md: 4, lg: 5 },
+            columnGap: { base: "12px", md: "16px", lg: "24px" },
+          }}
         >
           {waterfallGames.map((item, index) => (
             <Box
               key={`${item?.id ?? "game"}-${index}`}
-              breakInside="avoid"
               mb={{ base: 3, md: 4, lg: 6 }}
               display="inline-block"
               w="full"
+              sx={{ breakInside: "avoid" }}
             >
               <GameItem
                 data={item}

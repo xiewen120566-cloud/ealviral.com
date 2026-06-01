@@ -1,3 +1,9 @@
 {
-  "/[locale]/page": "static/webpack/app/[locale]/page.53e7056ea0566edf.hot-update.js"
+  "/page": "app/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/[locale]/[...rest]/page": "app/[locale]/[...rest]/page.js",
+  "/[locale]/play/[id]/page": "app/[locale]/play/[id]/page.js",
+  "/[locale]/detail/[slug]/page": "app/[locale]/detail/[slug]/page.js",
+  "/[locale]/page": "app/[locale]/page.js",
+  "/[locale]/category/[slug]/page": "app/[locale]/category/[slug]/page.js"
 }
