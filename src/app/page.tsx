@@ -1,7 +1,9 @@
-import { redirect } from "@/i18n/routing";
-import { routing } from "@/i18n/routing";
+ 
+
+export const runtime = "edge";
+
+import { redirect } from "next/navigation";
 
 export default function RootPage() {
-  redirect({ href: "/", locale: routing.defaultLocale });
+  redirect("/en-US");
 }
-

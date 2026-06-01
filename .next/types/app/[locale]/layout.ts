@@ -1,4 +1,4 @@
-// File: E:\jia\www.inspiranker.com\src\app\[locale]\layout.tsx
+// File: E:\jia\ealviral.com\src\app\[locale]\layout.tsx
 import * as entry from '../../../../src/app/[locale]/layout.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

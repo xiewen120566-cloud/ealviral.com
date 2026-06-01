@@ -18,11 +18,38 @@
       "assets": [],
       "env": {
         "__NEXT_BUILD_ID": "development",
-        "NEXT_SERVER_ACTIONS_ENCRYPTION_KEY": "UdkcdTdxaZyW2fWbnIBZgFE50GBjuEfsRpXYjEoh/x4="
+        "NEXT_SERVER_ACTIONS_ENCRYPTION_KEY": "e0sPY3k/yuQ5IBk6zSW+lYFpr/yasUvtpR3wUAoYNMk="
       }
     }
   },
-  "functions": {},
+  "functions": {
+    "/[locale]/page": {
+      "files": [
+        "server/server-reference-manifest.js",
+        "server/app/[locale]/page_client-reference-manifest.js",
+        "server/middleware-build-manifest.js",
+        "server/middleware-react-loadable-manifest.js",
+        "server/next-font-manifest.js",
+        "server/interception-route-rewrite-manifest.js",
+        "server/edge-runtime-webpack.js",
+        "server/app/[locale]/page.js"
+      ],
+      "name": "app/[locale]/page",
+      "page": "/[locale]/page",
+      "matchers": [
+        {
+          "regexp": "^/(?<locale>[^/]+?)$",
+          "originalSource": "/[locale]"
+        }
+      ],
+      "wasm": [],
+      "assets": [],
+      "env": {
+        "__NEXT_BUILD_ID": "development",
+        "NEXT_SERVER_ACTIONS_ENCRYPTION_KEY": "e0sPY3k/yuQ5IBk6zSW+lYFpr/yasUvtpR3wUAoYNMk="
+      }
+    }
+  },
   "sortedMiddleware": [
     "/"
   ]

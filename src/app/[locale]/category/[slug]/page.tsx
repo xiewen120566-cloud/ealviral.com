@@ -1,136 +1,129 @@
-import { Locale, Link } from "@/i18n/routing";
-import {
-  getCategoryLabel,
-  getPostsByCategoryPage,
-  isCategoryKey,
-} from "@/lib/posts";
-import {
-  AspectRatio,
-  Box,
-  Container,
-  Heading,
-  HStack,
-  Image,
-  Tag,
-  Text,
-  VStack,
-} from "@chakra-ui/react";
-import { notFound } from "next/navigation";
+ 
 
 export const runtime = "edge";
-export const dynamic = "force-dynamic";
 
-export default async function CategoryPage({
+import { getCategories, getGames } from "@/actions";
+import { Locale } from "@/i18n/routing";
+import {
+  Container,
+  SimpleGrid,
+  VStack,
+  Heading,
+  Flex,
+  Box,
+} from "@chakra-ui/react";
+import dynamic from "next/dynamic";
+
+interface Props {
+  params: {
+    locale: Locale;
+    slug: string;
+  };
+  searchParams: Record<string, string>;
+}
+
+import Header from "@/components/header";
+import Footer from "@/components/footer";
+import Info from "@/components/info";
+import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
+import GameItem from "@/components/game-item";
+import { randomGames } from "@/utils";
+const ElTemplate = dynamic(() => import("@/components/el-temlplate"), { ssr: false })
+
+
+export default async function Page({
   params: { locale, slug },
   searchParams,
-}: {
-  params: { locale: Locale; slug: string };
-  searchParams: Record<string, string | string[] | undefined>;
-}) {
-  if (!isCategoryKey(slug)) return notFound();
+}: Props) {
+  const baseUrlInput = (process.env.BASE_URL ?? "")
+    .trim()
+    .replace(/^['"]+|['"]+$/g, "");
+  const baseUrl = baseUrlInput || "https://ealviral.com";
+  const normalizedBaseUrl =
+    baseUrl.startsWith("http://") || baseUrl.startsWith("https://")
+      ? baseUrl
+      : `https://${baseUrl}`;
+  const { hostname } = new URL(normalizedBaseUrl);
+  const categories = await getCategories(locale);
+  const allGames = await getGames(locale);
+  const t = await getTranslations({ locale, namespace: "Common" });
+  const category = categories.find((item) => item.alias === slug);
 
-  const pageParam = Array.isArray(searchParams.page)
-    ? searchParams.page[0]
-    : searchParams.page;
-  const page = pageParam ? Number(pageParam) : 1;
-  const pageSize = 20;
+  if (!category) {
+    return notFound();
+  }
 
-  const first = getPostsByCategoryPage(locale, slug, page, pageSize);
-  const totalPages = Math.max(1, Math.ceil(first.total / pageSize));
-  const safePage = Math.min(
-    Math.max(1, Number.isFinite(page) ? Math.floor(page) : 1),
-    totalPages
+  const _list = allGames.filter(
+    (item) => item.categoryId === category.id 
   );
-  const { posts } =
-    safePage === (Number.isFinite(page) ? Math.floor(page) : 1)
-      ? first
-      : getPostsByCategoryPage(locale, slug, safePage, pageSize);
-
-  const label = getCategoryLabel(locale, slug);
-  const publishedLabel = locale === "zh-CN" ? "发布时间" : "Published";
+  const categoryByGames = randomGames(_list.length, 8).map((item) => _list[item]);
 
   return (
-    <Container maxW="container.xl" py={{ base: 8, md: 12 }}>
-      <VStack align="stretch" spacing={{ base: 6, md: 8 }}>
-        <Box>
-          <Heading as="h2" size="lg" letterSpacing="tight">
-            {label}
-          </Heading>
+    <Box bg="black" minH="100vh">
+      <Header categories={categories} hostname={hostname} />
+      <Container maxWidth="container.xl" px={{ base: 3, md: 4, lg: 6 }} py={{ base: 4, md: 6 }}>
+        <Box mb={{ base: 4, md: 6 }}>
+          <ElTemplate
+            divId="div-gpt-ad-1780129781656-0"
+            adUnitPath="/23353070464/AD33"
+            sizes={[[300, 31], [300, 100], [300, 600], [300, 50], [320, 100], [320, 480], [320, 50], [300, 75], [300, 250]]}
+            minWidth={300}
+            minHeight={31}
+          />
         </Box>
-
-        <VStack align="stretch" spacing={4}>
-          {posts.map((post) => (
-            <Link
-              key={post.id}
-              href={`/posts/${post.slug}`}
-              locale={locale}
-              style={{ display: "block" }}
-            >
-              <Box
-                p={{ base: 4, md: 5 }}
-                border="1px solid"
-                borderColor="gray.200"
-                rounded="xl"
-                _hover={{ borderColor: "gray.300" }}
-              >
-                <HStack justify="space-between" align="start" gap={3}>
-                  <Box>
-                    <Tag size="sm" colorScheme="gray">
-                      {label}
-                    </Tag>
-                  </Box>
-                  <Text fontSize="sm" color="gray.500">
-                    {publishedLabel}: {post.date}
-                  </Text>
-                </HStack>
-
-                <Box
-                  mt={3}
-                  rounded="lg"
-                  overflow="hidden"
-                  border="1px solid"
-                  borderColor="gray.100"
+        <VStack alignItems="stretch" gap={{ base: 6, md: 8 }}>
+          <Box
+            bg="surface.1"
+            border="1px solid"
+            borderColor="border.subtle"
+            rounded={{ base: "xl", md: "2xl" }}
+            overflow="hidden"
+          >
+            <Box px={{ base: 4, md: 5 }} py={{ base: 4, md: 5 }}>
+              <Flex alignItems="center" gap={3}>
+                {/* <Image
+                  alt={t("Games", { category: category.name })}
+                  src={`/static/images/category/${category.alias}.png`}
+                  width="48"
+                  height="48"
+                  priority={false}
+                /> */}
+                <Heading
+                  fontSize={{ base: "md", md: "xl" }}
+                  color="text.primary"
+                  textTransform="uppercase"
                 >
-                  <AspectRatio ratio={1200 / 630}>
-                    <Image src={post.imageUrl} alt={post.title} />
-                  </AspectRatio>
-                </Box>
-
-                <Heading as="h3" size="md" mt={3}>
-                  {post.title}
+                  {t("Games", { category: category.name })}
                 </Heading>
-                <Text mt={2} color="gray.600" noOfLines={2}>
-                  {post.excerpt}
-                </Text>
-              </Box>
-            </Link>
-          ))}
+              </Flex>
+              <SimpleGrid
+                pt={{ base: 3, md: 4, lg: 6 }}
+                columns={{ base: 2, sm: 3, md: 4, lg: 6 }}
+                gap={{ base: 3, md: 4, lg: 6 }}
+              >
+                {categoryByGames.map((item, index) => (
+                  <GameItem
+                    key={`${item?.id ?? "game"}-${index}`}
+                    data={item}
+                    locale={locale}
+                    channel={searchParams?.channel}
+                  />
+                ))}
+              </SimpleGrid>
+            </Box>
+          </Box>
+          <Info locale={locale} />
         </VStack>
-
-        <HStack justify="space-between" pt={2}>
-          <Box>
-            {safePage > 1 ? (
-              <Link href={`/category/${slug}?page=${safePage - 1}`} locale={locale}>
-                {locale === "zh-CN" ? "上一页" : "Previous"}
-              </Link>
-            ) : (
-              <Text color="gray.400">{locale === "zh-CN" ? "上一页" : "Previous"}</Text>
-            )}
-          </Box>
-          <Text color="gray.600">
-            {(locale === "zh-CN" ? "页码" : "Page")} {safePage} / {totalPages}
-          </Text>
-          <Box>
-            {safePage < totalPages ? (
-              <Link href={`/category/${slug}?page=${safePage + 1}`} locale={locale}>
-                {locale === "zh-CN" ? "下一页" : "Next"}
-              </Link>
-            ) : (
-              <Text color="gray.400">{locale === "zh-CN" ? "下一页" : "Next"}</Text>
-            )}
-          </Box>
-        </HStack>
-      </VStack>
-    </Container>
+        {/* <ElTemplate
+          divId="div-gpt-ad-1780129781656-3"
+          adUnitPath="/23353070464/AD33"
+          sizes={[[300, 31], [300, 100], [300, 600], [300, 50], [320, 100], [320, 480], [320, 50], [300, 75], [300, 250]]}
+          minWidth={300}
+          minHeight={31}
+        /> */}
+      </Container>
+      <Footer />
+    </Box>
   );
 }
