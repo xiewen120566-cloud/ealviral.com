@@ -56,11 +56,7 @@ const ElClick: React.FC = () => {
       //     ...adData,
       //   },
       // }));
-      window.ttq?.track?.("Purchase", {
-        value: 0.12,
-        currency: "USD",
-        content_id: "adsense_click",
-      });
+      window.ttq?.track?.("ClickButton");
     }
   }, [collectAdData]);
 
@@ -83,11 +79,7 @@ const ElClick: React.FC = () => {
         //     ...adData,
         //   },
         // }));
-        window.ttq?.track?.("Purchase", {
-          value: 0.12,
-          currency: "USD",
-          content_id: "adsense_click",
-        });
+        window.ttq?.track?.("ClickButton");
         console.log(JSON.stringify(adData));
         // 使用更简洁的方式触发像素跟踪
         isBeforeUnloadHandled.current = true;
