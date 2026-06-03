@@ -22,7 +22,7 @@ const ElClick: React.FC = () => {
       const activeElement = document.activeElement as HTMLIFrameElement | null;
       if (!activeElement || activeElement.tagName !== "IFRAME") return null;
 
-      const adContainer = activeElement.closest(".adsbygoogle");
+      const adContainer = activeElement.closest(".gpt-slot, .adsbygoogle, [id^='div-gpt-ad-']");
       const iframeSrc = activeElement.getAttribute("src");
       if (adContainer && iframeSrc) {
         const formatIframeSrc = new URL(iframeSrc)
@@ -92,11 +92,12 @@ const ElClick: React.FC = () => {
     const activeElement = document.activeElement as HTMLIFrameElement | null;
     if (activeElement?.tagName === "IFRAME") {
       isBlurTriggered.current = true;
+      debouncedTrackAdClick();
       setTimeout(() => {
         isBlurTriggered.current = false;
       }, 300);
     }
-  }, []);
+  }, [debouncedTrackAdClick]);
 
   const handleVisibilityChange = useCallback(
     () => {
