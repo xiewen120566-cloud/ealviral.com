@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { PropsWithChildren } from "react";
 import BaseLayout from "@/components/basic-layout";
 import { Locale, routing } from "@/i18n/routing";
-import { DarkMode } from "@chakra-ui/react";
 import Script from "next/script";
 import dynamic from "next/dynamic";
 
@@ -70,7 +69,7 @@ var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n
         }}
       />
       {/* <Script async strategy="afterInteractive" src="https://analytics.xxx.org/script.js" data-website-id="d9790303-4023-4b67-9fa1-ec7dc1"/> */}
-      <DarkMode>{children}</DarkMode>
+      {children}
       <ElClick />
     </BaseLayout>
   );

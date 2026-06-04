@@ -36,6 +36,7 @@ const SideNav = ({ categories }:  {categories: CategoryRecord[]}) => {
         animate={isOpen ? "open" : "closed"}
         size="md"
         variant="ghost"
+        color="text.primary"
         p={0}
         onClick={() => {
           toggleOpen();

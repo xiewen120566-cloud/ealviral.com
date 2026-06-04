@@ -34,8 +34,8 @@ export default async function Info({ locale }: { locale: Locale }) {
         shadow="none"
       >
         <CardBody pt={0}>
-          <VStack fontSize="xs" gap={1} alignItems="stretch" color="blue.600">
-            <Heading size="sm" pb={1} color="blue.700">
+          <VStack fontSize="xs" gap={1} alignItems="stretch" color="blue.500">
+            <Heading size="sm" pb={1} color="blue.500">
               {t.rich("section1.title", {
                 hostname: normalizedBaseUrl,
                 tagname: (text) => (
@@ -64,8 +64,8 @@ export default async function Info({ locale }: { locale: Locale }) {
         shadow="none"
       >
         <CardBody pt={0}>
-          <VStack fontSize="xs" gap={1} alignItems="stretch" color="blue.600">
-            <Heading size="sm" pb={1} color="blue.700">
+          <VStack fontSize="xs" gap={1} alignItems="stretch" color="blue.500">
+            <Heading size="sm" pb={1} color="blue.500">
               {t.rich("section2.title", {
                 hostname: normalizedBaseUrl,
                 tagname: (text) => (
@@ -115,8 +115,8 @@ export default async function Info({ locale }: { locale: Locale }) {
         shadow="none"
       >
         <CardBody pt={0}>
-          <VStack fontSize="xs" gap={1} alignItems="stretch" color="blue.600">
-            <Heading size="sm" pb={1} color="blue.700">
+          <VStack fontSize="xs" gap={1} alignItems="stretch" color="blue.500">
+            <Heading size="sm" pb={1} color="blue.500">
               {t.rich("section3.title", {
                 hostname: normalizedBaseUrl,
                 tagname: (text) => (

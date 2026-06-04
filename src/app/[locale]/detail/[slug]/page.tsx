@@ -26,7 +26,7 @@ import {
 } from "@chakra-ui/react";
 import dynamic from "next/dynamic";
 import { getTargetHref, randomGames} from "@/utils";
-const ElTemplate = dynamic(() => import("@/components/el-temlplate"), { ssr: false })
+const GptAd = dynamic(() => import("@/components/gpt-ad"), { ssr: false });
 interface Props {
   params: {
     locale: Locale;
@@ -72,18 +72,26 @@ export default async function Page({
     return null;
   }
   return (
-    <Box bg="black" minH="100vh">
+    <>
       <Header hostname={hostname} categories={categories} />
       <Container maxWidth="container.xl" px={{ base: 3, md: 4, lg: 6 }} pt={{ base: 4, md: 6 }}>
-        <Box mb={{ base: 4, md: 6 }}>
-          <ElTemplate
-            divId="div-gpt-ad-1780129781656-0"
-            adUnitPath="/23353070464/AD33"
-            sizes={[[300, 31], [300, 100], [300, 600], [300, 50], [320, 100], [320, 480], [320, 50], [300, 75], [300, 250]]}
-            minWidth={300}
-            minHeight={31}
-          />
-        </Box>
+        <GptAd
+          divId="div-gpt-ad-1780129781656-3"
+          adUnitPath="/23353070464/AD33"
+          sizes={[
+            [300, 31],
+            [300, 100],
+            [300, 600],
+            [300, 50],
+            [320, 100],
+            [320, 480],
+            [320, 50],
+            [300, 75],
+            [300, 250],
+          ]}
+          minWidth={300}
+          minHeight={31}
+        />
       </Container>
       <Container maxWidth="container.xl" px={{ base: 3, md: 4, lg: 6 }} py={{ base: 4, md: 6 }}>
         <SimpleGrid columns={{ base: 1, md: 2 }} gap={{ base: 4, md: 6, lg: 10 }}>
@@ -170,15 +178,8 @@ export default async function Page({
           </SimpleGrid>
         </Box>
         <Info locale={locale} />
-        {/* <ElTemplate
-          divId="div-gpt-ad-1780129781656-5"
-          adUnitPath="/23353070464/AD33"
-          sizes={[[300, 31], [300, 100], [300, 600], [300, 50], [320, 100], [320, 480], [320, 50], [300, 75], [300, 250]]}
-          minWidth={300}
-          minHeight={31}
-        /> */}
       </Container>
       <Footer />
-    </Box>
+    </>
   );
 }

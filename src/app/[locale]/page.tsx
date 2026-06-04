@@ -14,7 +14,7 @@ import Footer from "@/components/footer";
 import { randomGames } from "@/utils";
 import Info from "@/components/info";
 import GameItem from "@/components/game-item";
-const ElTemplate = dynamic(() => import("@/components/el-temlplate"), { ssr: false })
+const GptAd = dynamic(() => import("@/components/gpt-ad"), { ssr: false });
 interface Props {
   params: {
     locale: Locale;
@@ -37,27 +37,32 @@ export default async function Page({
   const { hostname } = new URL(normalizedBaseUrl);
   const allGames = await getGames(locale);
   const categories = await getCategories(locale);
-  const waterfallGames = randomGames(allGames.length, Math.min(allGames.length, 80)).map(
+  const waterfallGames = randomGames(allGames.length, Math.min(allGames.length, 120)).map(
     (item) => allGames[item]
   );
   return (
-    <Box bg="black" minH="100vh">
+    <>
       <Header hostname={hostname} categories={categories} />
-      <Container
-        maxWidth="container.xl"
-        px={{ base: 3, md: 4, lg: 6 }}
-        py={{ base: 4, md: 6 }}
-      >
-        <Box mb={{ base: 4, md: 6 }}>
-          <ElTemplate
-            divId="div-gpt-ad-1780129781656-0"
-            adUnitPath="/23353070464/AD33"
-            sizes={[[300, 31], [300, 100], [300, 600], [300, 50], [320, 100], [320, 480], [320, 50], [300, 75], [300, 250]]}
-            minWidth={300}
-            minHeight={31}
-          />
-        </Box>
+      <Container maxWidth="container.xl" px={{ base: 3, md: 4, lg: 6 }} py={{ base: 4, md: 6 }}>
+        <GptAd
+          divId="div-gpt-ad-1780129781656-0"
+          adUnitPath="/23353070464/AD33"
+          sizes={[
+            [300, 31],
+            [300, 100],
+            [300, 600],
+            [300, 50],
+            [320, 100],
+            [320, 480],
+            [320, 50],
+            [300, 75],
+            [300, 250],
+          ]}
+          minWidth={300}
+          minHeight={31}
+        />
         <Box
+          mt={{ base: 4, md: 6 }}
           sx={{
             columnCount: { base: 2, sm: 3, md: 4, lg: 5 },
             columnGap: { base: "12px", md: "16px", lg: "24px" },
@@ -71,24 +76,30 @@ export default async function Page({
               w="full"
               sx={{ breakInside: "avoid" }}
             >
-              <GameItem
-                data={item}
-                locale={locale}
-                channel={searchParams?.channel}
-              />
+              <GameItem data={item} locale={locale} channel={searchParams?.channel} />
             </Box>
           ))}
         </Box>
         <Info locale={locale} />
-        {/* <ElTemplate
+        <GptAd
           divId="div-gpt-ad-1780129781656-1"
           adUnitPath="/23353070464/AD33"
-          sizes={[[300, 31], [300, 100], [300, 600], [300, 50], [320, 100], [320, 480], [320, 50], [300, 75], [300, 250]]}
+          sizes={[
+            [300, 31],
+            [300, 100],
+            [300, 600],
+            [300, 50],
+            [320, 100],
+            [320, 480],
+            [320, 50],
+            [300, 75],
+            [300, 250],
+          ]}
           minWidth={300}
           minHeight={31}
-        /> */}
+        />
       </Container>
       <Footer />
-    </Box>
+    </>
   );
 }

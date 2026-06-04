@@ -22,7 +22,7 @@ const LocaleSwitcher = () => {
     <Menu placement="bottom-end">
       <MenuButton
         as={IconButton}
-        color="current"
+        color="text.primary"
         aria-label="Options"
         icon={<GrLanguage />}
         variant="ghost"

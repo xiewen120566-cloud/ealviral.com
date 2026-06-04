@@ -6,7 +6,6 @@ import { getCategories, getGames } from "@/actions";
 import { Locale } from "@/i18n/routing";
 import {
   Container,
-  SimpleGrid,
   VStack,
   Heading,
   Flex,
@@ -29,7 +28,7 @@ import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import GameItem from "@/components/game-item";
 import { randomGames } from "@/utils";
-const ElTemplate = dynamic(() => import("@/components/el-temlplate"), { ssr: false })
+const GptAd = dynamic(() => import("@/components/gpt-ad"), { ssr: false });
 
 
 export default async function Page({
@@ -57,22 +56,32 @@ export default async function Page({
   const _list = allGames.filter(
     (item) => item.categoryId === category.id 
   );
-  const categoryByGames = randomGames(_list.length, 8).map((item) => _list[item]);
+  const waterfallGames = randomGames(_list.length, Math.min(_list.length, 120)).map(
+    (item) => _list[item]
+  );
 
   return (
-    <Box bg="black" minH="100vh">
+    <>
       <Header categories={categories} hostname={hostname} />
       <Container maxWidth="container.xl" px={{ base: 3, md: 4, lg: 6 }} py={{ base: 4, md: 6 }}>
-        <Box mb={{ base: 4, md: 6 }}>
-          <ElTemplate
-            divId="div-gpt-ad-1780129781656-0"
-            adUnitPath="/23353070464/AD33"
-            sizes={[[300, 31], [300, 100], [300, 600], [300, 50], [320, 100], [320, 480], [320, 50], [300, 75], [300, 250]]}
-            minWidth={300}
-            minHeight={31}
-          />
-        </Box>
-        <VStack alignItems="stretch" gap={{ base: 6, md: 8 }}>
+        <GptAd
+          divId="div-gpt-ad-1780129781656-2"
+          adUnitPath="/23353070464/AD33"
+          sizes={[
+            [300, 31],
+            [300, 100],
+            [300, 600],
+            [300, 50],
+            [320, 100],
+            [320, 480],
+            [320, 50],
+            [300, 75],
+            [300, 250],
+          ]}
+          minWidth={300}
+          minHeight={31}
+        />
+        <VStack alignItems="stretch" gap={{ base: 4, md: 6 }} mt={{ base: 4, md: 6 }}>
           <Box
             bg="surface.1"
             border="1px solid"
@@ -97,33 +106,31 @@ export default async function Page({
                   {t("Games", { category: category.name })}
                 </Heading>
               </Flex>
-              <SimpleGrid
+              <Box
                 pt={{ base: 3, md: 4, lg: 6 }}
-                columns={{ base: 2, sm: 3, md: 4, lg: 6 }}
-                gap={{ base: 3, md: 4, lg: 6 }}
+                sx={{
+                  columnCount: { base: 2, sm: 3, md: 4, lg: 5 },
+                  columnGap: { base: "12px", md: "16px", lg: "24px" },
+                }}
               >
-                {categoryByGames.map((item, index) => (
-                  <GameItem
+                {waterfallGames.map((item, index) => (
+                  <Box
                     key={`${item?.id ?? "game"}-${index}`}
-                    data={item}
-                    locale={locale}
-                    channel={searchParams?.channel}
-                  />
+                    mb={{ base: 3, md: 4, lg: 6 }}
+                    display="inline-block"
+                    w="full"
+                    sx={{ breakInside: "avoid" }}
+                  >
+                    <GameItem data={item} locale={locale} channel={searchParams?.channel} />
+                  </Box>
                 ))}
-              </SimpleGrid>
+              </Box>
             </Box>
           </Box>
           <Info locale={locale} />
         </VStack>
-        {/* <ElTemplate
-          divId="div-gpt-ad-1780129781656-3"
-          adUnitPath="/23353070464/AD33"
-          sizes={[[300, 31], [300, 100], [300, 600], [300, 50], [320, 100], [320, 480], [320, 50], [300, 75], [300, 250]]}
-          minWidth={300}
-          minHeight={31}
-        /> */}
       </Container>
       <Footer />
-    </Box>
+    </>
   );
 }
