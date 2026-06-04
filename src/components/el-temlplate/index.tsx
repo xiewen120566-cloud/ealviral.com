@@ -8,6 +8,8 @@ type GptCommandFn = () => void;
 
 type GptSlot = {
   addService: (service: unknown) => GptSlot;
+  getSlotElementId?: () => string;
+  getAdUnitPath?: () => string;
 };
 
 type GoogletagApi = {
@@ -15,6 +17,7 @@ type GoogletagApi = {
   defineSlot?: (adUnitPath: string, size: GptSize[], divId: string) => GptSlot | null;
   pubads?: () => {
     enableSingleRequest: () => void;
+    addEventListener?: (eventType: string, callback: (event: any) => void) => void;
   };
   enableServices?: () => void;
   display?: (divId: string) => void;
@@ -25,6 +28,9 @@ declare global {
   interface Window {
     googletag?: GoogletagApi;
     __gptServicesEnabled?: boolean;
+    __gptEventListenersRegistered?: boolean;
+    dataLayer?: unknown[];
+    gtag?: (...args: any[]) => void;
   }
 }
 
@@ -65,6 +71,43 @@ const ElTemplate = forwardRef<HTMLDivElement, AdTemplateProps>(function AdTempla
         pubadsService.enableSingleRequest();
         googletag.enableServices?.();
         window.__gptServicesEnabled = true;
+      }
+
+      if (!window.__gptEventListenersRegistered && pubadsService.addEventListener) {
+        const pushEvent = (eventName: string, payload: Record<string, unknown>) => {
+          window.dataLayer = window.dataLayer || [];
+          (window.dataLayer as any[]).push({ event: eventName, ...payload });
+          window.gtag?.("event", eventName, payload);
+        };
+
+        pubadsService.addEventListener("slotRenderEnded", (event: any) => {
+          const eventSlot: GptSlot | undefined = event?.slot;
+          pushEvent("gpt_slot_render_ended", {
+            divId: eventSlot?.getSlotElementId?.(),
+            adUnitPath: eventSlot?.getAdUnitPath?.(),
+            isEmpty: event?.isEmpty,
+            size: event?.size,
+          });
+        });
+
+        pubadsService.addEventListener("impressionViewable", (event: any) => {
+          const eventSlot: GptSlot | undefined = event?.slot;
+          pushEvent("gpt_impression_viewable", {
+            divId: eventSlot?.getSlotElementId?.(),
+            adUnitPath: eventSlot?.getAdUnitPath?.(),
+          });
+        });
+
+        pubadsService.addEventListener("slotVisibilityChanged", (event: any) => {
+          const eventSlot: GptSlot | undefined = event?.slot;
+          pushEvent("gpt_slot_visibility_changed", {
+            divId: eventSlot?.getSlotElementId?.(),
+            adUnitPath: eventSlot?.getAdUnitPath?.(),
+            inViewPercentage: event?.inViewPercentage,
+          });
+        });
+
+        window.__gptEventListenersRegistered = true;
       }
 
       googletag.display?.(props.divId);
