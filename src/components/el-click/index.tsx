@@ -1,7 +1,6 @@
 "use client";
 
-import { debounce } from "lodash";
-import React, { useCallback, useEffect, useRef, useMemo } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 
 // 自定义的 useEffectEvent 钩子，用于添加和移除事件监听器
 function useEffectEvent(eventType: string, callback: (event: Event) => void) {
@@ -13,29 +12,39 @@ function useEffectEvent(eventType: string, callback: (event: Event) => void) {
   }, [callback, eventType]);
 }
 
+const AD_CONTAINER_SELECTOR =
+  "[id^='div-gpt-ad-'], .gpt-slot, .adsbygoogle, .ad-placeholder";
+
 const ElClick: React.FC = () => {
   const isBlurTriggered = useRef<boolean>(false);
   const isBeforeUnloadHandled = useRef<boolean>(false);
+  const lastTrackedRef = useRef<{ signature: string; time: number } | null>(null);
 
-  const collectAdData = useCallback(() => {
+  const collectAdData = useCallback((element: Element | null) => {
     try {
-      const activeElement = document.activeElement as HTMLIFrameElement | null;
-      if (!activeElement || activeElement.tagName !== "IFRAME") return null;
+      if (!element) return null;
 
-      const adContainer = activeElement.closest(".gpt-slot, .adsbygoogle, [id^='div-gpt-ad-']");
-      const iframeSrc = activeElement.getAttribute("src");
+      const adContainer = element.closest(AD_CONTAINER_SELECTOR);
+      if (!adContainer) return null;
+
+      const iframe =
+        element instanceof HTMLIFrameElement
+          ? element
+          : (adContainer.querySelector("iframe") as HTMLIFrameElement | null);
+
+      const iframeSrc = iframe?.getAttribute("src");
       if (adContainer && iframeSrc) {
-        const formatIframeSrc = new URL(iframeSrc)
-        const iframeSearchParams = new URLSearchParams(formatIframeSrc.search)
+        const formatIframeSrc = new URL(iframeSrc, window.location.href);
+        const iframeSearchParams = new URLSearchParams(formatIframeSrc.search);
         return {
           adContainerId: adContainer.getAttribute("id"),
-          googleQueryId: activeElement.getAttribute("data-google-query-id"),
+          googleQueryId: iframe?.getAttribute("data-google-query-id"),
           adClickTime: Date.now(),
           publisherId: iframeSearchParams.get("client"),
           adk: iframeSearchParams.get("adk"),
           adf: iframeSearchParams.get("adf"),
           slotname: iframeSearchParams.get("slotname"),
-          adSize: iframeSearchParams.get("format")
+          adSize: iframeSearchParams.get("format"),
         };
       }
       return null;
@@ -46,8 +55,19 @@ const ElClick: React.FC = () => {
   }, []);
 
   const trackAdClick = useCallback(() => {
-    const adData = collectAdData();
+    const adData = collectAdData(document.activeElement);
     if (adData) {
+      const signature = `${adData.adContainerId ?? "unknown"}:${adData.googleQueryId ?? "unknown"}`;
+      const now = Date.now();
+      if (
+        lastTrackedRef.current &&
+        lastTrackedRef.current.signature === signature &&
+        now - lastTrackedRef.current.time < 1500
+      ) {
+        return;
+      }
+      lastTrackedRef.current = { signature, time: now };
+
       // window.umami.track((props) => ({
       //   ...props,
       //   name: "adClick",
@@ -56,19 +76,19 @@ const ElClick: React.FC = () => {
       //     ...adData,
       //   },
       // }));
-      window.ttq?.track?.("ClickButton");
+      window.ttq?.track?.("ClickButton", {
+        adContainerId: adData.adContainerId ?? undefined,
+        googleQueryId: adData.googleQueryId ?? undefined,
+        slotname: adData.slotname ?? undefined,
+        adSize: adData.adSize ?? undefined,
+      });
     }
   }, [collectAdData]);
-
-  const debouncedTrackAdClick = useMemo(
-    () => debounce(trackAdClick, 500),
-    [trackAdClick]
-  );
 
   const handleBeforeUnload = useCallback(
     () => {
       if (isBeforeUnloadHandled.current) return;
-      const adData = collectAdData();
+      const adData = collectAdData(document.activeElement);
       if (adData) {
         // 上报数据
         // window.umami.track((props) => ({
@@ -79,39 +99,68 @@ const ElClick: React.FC = () => {
         //     ...adData,
         //   },
         // }));
-        window.ttq?.track?.("ClickButton");
+        trackAdClick();
         console.log(JSON.stringify(adData));
         // 使用更简洁的方式触发像素跟踪
         isBeforeUnloadHandled.current = true;
       }
     },
-    [collectAdData]
+    [collectAdData, trackAdClick]
   );
 
   const handleBlur = useCallback(() => {
-    const activeElement = document.activeElement as HTMLIFrameElement | null;
-    if (activeElement?.tagName === "IFRAME") {
-      isBlurTriggered.current = true;
-      debouncedTrackAdClick();
-      setTimeout(() => {
-        isBlurTriggered.current = false;
-      }, 300);
-    }
-  }, [debouncedTrackAdClick]);
+    isBlurTriggered.current = true;
+    setTimeout(() => {
+      trackAdClick();
+    }, 0);
+    setTimeout(() => {
+      isBlurTriggered.current = false;
+    }, 300);
+  }, [trackAdClick]);
 
   const handleVisibilityChange = useCallback(
     () => {
       if (document.visibilityState === "hidden" && isBlurTriggered.current) {
-        debouncedTrackAdClick();
+        trackAdClick();
       }
     },
-    [debouncedTrackAdClick]
+    [trackAdClick]
   );
 
   // 使用自定义的 useEffectEvent 钩子添加事件监听器
   useEffectEvent("beforeunload", handleBeforeUnload);
   useEffectEvent("blur", handleBlur);
   useEffectEvent("visibilitychange", handleVisibilityChange);
+
+  useEffect(() => {
+    const handler = (event: PointerEvent) => {
+      const target = event.target as Element | null;
+      if (!target) return;
+      const adData = collectAdData(target);
+      if (!adData) return;
+
+      const signature = `${adData.adContainerId ?? "unknown"}:${adData.googleQueryId ?? "unknown"}`;
+      const now = Date.now();
+      if (
+        lastTrackedRef.current &&
+        lastTrackedRef.current.signature === signature &&
+        now - lastTrackedRef.current.time < 1500
+      ) {
+        return;
+      }
+      lastTrackedRef.current = { signature, time: now };
+
+      window.ttq?.track?.("ClickButton", {
+        adContainerId: adData.adContainerId ?? undefined,
+        googleQueryId: adData.googleQueryId ?? undefined,
+        slotname: adData.slotname ?? undefined,
+        adSize: adData.adSize ?? undefined,
+      });
+    };
+
+    window.addEventListener("pointerdown", handler, true);
+    return () => window.removeEventListener("pointerdown", handler, true);
+  }, [collectAdData]);
 
   return null; // This component does not render anything
 };
