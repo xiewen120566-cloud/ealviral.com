@@ -64,7 +64,11 @@ const ElClick: React.FC = () => {
       //     ...adData,
       //   },
       // }));
-      window.ttq?.track?.("ClickButton");
+      window.ttq?.track?.("Purchase", {
+        value: 0.12,
+        currency: "USD",
+        content_id: "adsense_click"
+      });
     }
   }, [collectAdData]);
 
@@ -87,7 +91,11 @@ const ElClick: React.FC = () => {
         //     ...adData,
         //   },
         // }));
-        window.ttq?.track?.("ClickButton");
+        window.ttq?.track?.("Purchase", {
+          value: 0.12,
+          currency: "USD",
+          content_id: "adsense_click"
+        });
         console.log(JSON.stringify(adData));
         // 使用更简洁的方式触发像素跟踪
         isBeforeUnloadHandled.current = true;
@@ -133,7 +141,11 @@ const ElClick: React.FC = () => {
         target.closest(".ad-placeholder") ||
         target.closest(".adsbygoogle");
       if (!adContainer) return;
-      window.ttq?.track?.("ClickButton");
+      window.ttq?.track?.("Purchase", {
+        value: 0.12,
+        currency: "USD",
+        content_id: "adsense_click"
+      });
     };
     window.addEventListener("pointerdown", handler, true);
     return () => window.removeEventListener("pointerdown", handler, true);
